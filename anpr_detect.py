@@ -78,7 +78,7 @@ def detect(im, param_vals, min_score):
     """
 
     # Convert the image to various scales.
-    scaled_ims = list(make_scaled_ims(im, 2*numpy.array(anpr_model.WINDOW_SHAPE)))
+    scaled_ims = list(make_scaled_ims(im, anpr_model.WINDOW_SHAPE))
 
     # Load the model which detects digits over a sliding window.
     x, y, params = anpr_model.get_detect_model()
