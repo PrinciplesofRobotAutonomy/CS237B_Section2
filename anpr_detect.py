@@ -50,7 +50,7 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
 def make_scaled_ims(im, min_shape):
-    ratio = 1. / 2 ** 0.5
+    ratio = 1. / 2
     shape = (im.shape[0] / ratio, im.shape[1] / ratio)
 
     while True:
@@ -78,7 +78,7 @@ def detect(im, param_vals, min_score):
     """
 
     # Convert the image to various scales.
-    scaled_ims = list(make_scaled_ims(im, anpr_model.WINDOW_SHAPE))
+    scaled_ims = list(make_scaled_ims(im, 2*numpy.array(anpr_model.WINDOW_SHAPE)))
 
     # Load the model which detects digits over a sliding window.
     x, y, params = anpr_model.get_detect_model()
@@ -169,6 +169,11 @@ def post_process(matches):
                numpy.max(present_probs),
                letter_probs[numpy.argmax(present_probs)])
 
+
+def letter_probs_to_code(letter_probs):
+    return int("".join(anpr_common.CHARS[i] for i in numpy.argmax(letter_probs, axis=1)))
+
+
 class DigitDetector:
     def __init__(self, weights_file, min_score):
         f = numpy.load(weights_file)
@@ -186,7 +191,7 @@ class DigitDetector:
             boxes.append(numpy.zeros((4,)))
             boxes[-1][:2] = pt1 / numpy.array(im_gray.shape)
             boxes[-1][2:] = pt2 / numpy.array(im_gray.shape)
-            scores.append(numpy.max(letter_probs))
-            classes.append(numpy.argmax(letter_probs))
+            scores.append(numpy.prod(letter_probs,axis=0).max())
+            classes.append(letter_probs_to_code(letter_probs))
             num += 1
         return boxes, scores, classes, num
