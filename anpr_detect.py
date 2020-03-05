@@ -191,7 +191,7 @@ class DigitDetector:
             boxes.append(numpy.zeros((4,)))
             boxes[-1][:2] = pt1 / numpy.array(im_gray.shape)
             boxes[-1][2:] = pt2 / numpy.array(im_gray.shape)
-            scores.append(numpy.prod(letter_probs,axis=0).max())
+            scores.append(letter_probs.max(axis=1).prod())
             classes.append(letter_probs_to_code(letter_probs))
             num += 1
         return boxes, scores, classes, num
